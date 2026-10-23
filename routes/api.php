@@ -18,6 +18,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/login',    [AuthController::class, 'login']);
 
     Route::middleware('auth:sanctum')->group(function () {
+
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me',      [AuthController::class, 'me']);
     });
@@ -37,12 +38,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::put('/profile', [ProfileController::class, 'update']);
 
-    Route::post('/categories',        [CategoryController::class, 'store']);
-    Route::put('/categories/{id}',    [CategoryController::class, 'update']);
-    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+    
+    // Produits et catégories : administrateur uniquement
+    Route::middleware('admin')->group(function () {
+        Route::post('/categories', [CategoryController::class, 'store']);
+        Route::put('/categories/{id}', [CategoryController::class, 'update']);
+        Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
-    Route::post('/products',        [ProductController::class, 'store']);
-    Route::put('/products/{id}',    [ProductController::class, 'update']);
+        Route::post('/products', [ProductController::class, 'store']);
+        Route::put('/products/{id}', [ProductController::class, 'update']);
+        Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+    });
+
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
 
     Route::get('/cart',         [CartController::class, 'index']);
@@ -62,7 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reviews',      [ReviewController::class, 'store']);
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 
-    Route::prefix('admin')->group(function () {
+    Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/stats',              [DashboardController::class, 'stats']);
         Route::get('/orders',             [AdminOrderController::class, 'index']);
         Route::get('/orders/{id}',        [AdminOrderController::class, 'show']);
